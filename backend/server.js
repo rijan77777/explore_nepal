@@ -13,6 +13,7 @@ app.use('/api/hotels',       require('./routes/hotels'));
 app.use('/api/restaurants',  require('./routes/restaurants'));
 app.use('/api/admin',        require('./routes/admin'));
 app.use('/api/bookings',     require('./routes/bookings'));
+app.use('/api/weather',      require('./routes/weather'));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

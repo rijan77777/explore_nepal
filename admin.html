@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExploreNepal — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sage:   #2d9d6f;
+    --sage-d: #22794f;
+    --dark:   #14161f;
+    --dark-2: #1c1f2b;
+    --gold:   #ff4d3d;
+    --gold-d: #e0311f;
+    --bg:     #faf7f2;
+    --bg2:    #f1ece3;
+    --text:   #23252b;
+    --muted:  #6b6f76;
+    --white:  #fff;
+    --radius: 14px;
+    --fh: 'Playfair Display', Georgia, serif;
+    --fb: 'Manrope', 'Lato', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--fb); background: var(--bg); color: var(--text); }
+
+  /* ---------- Login screen ---------- */
+  #loginScreen {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--dark);
+  }
+  .login-box {
+    background: var(--white); border-radius: var(--radius); padding: 40px 36px;
+    width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  .login-box h1 { font-family: var(--fh); font-size: 1.6rem; margin-bottom: 6px; }
+  .login-box p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+  .login-box input {
+    width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px;
+    font-size: 0.95rem; margin-bottom: 12px; font-family: var(--fb);
+  }
+  .login-box input:focus { outline: 2px solid var(--sage); border-color: var(--sage); }
+  .login-box button {
+    width: 100%; padding: 12px; border: none; border-radius: 10px;
+    background: var(--sage); color: var(--white); font-weight: 600; font-size: 0.95rem;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .login-box button:hover { background: var(--sage-d); }
+  #loginError { color: var(--gold-d); font-size: 0.85rem; margin-top: 10px; min-height: 18px; }
+
+  /* ---------- Dashboard shell ---------- */
+  #dashboard { display: none; min-height: 100vh; }
+  .sidebar {
+    width: 220px; background: var(--dark); color: var(--white); position: fixed;
+    top: 0; left: 0; bottom: 0; padding: 28px 18px; display: flex; flex-direction: column;
+  }
+  .sidebar h2 { font-family: var(--fh); font-size: 1.25rem; margin-bottom: 4px; }
+  .sidebar .tag { color: var(--sage); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 28px; }
+  .nav-btn {
+    display: block; width: 100%; text-align: left; background: none; border: none;
+    color: rgba(255,255,255,0.75); padding: 11px 12px; border-radius: 8px; font-size: 0.9rem;
+    font-family: var(--fb); font-weight: 500; cursor: pointer; margin-bottom: 4px;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+  .nav-btn.active { background: var(--sage); color: var(--white); }
+  .sidebar .logout { margin-top: auto; color: var(--gold); background: none; border: none; cursor: pointer; font-family: var(--fb); font-size: 0.85rem; text-align: left; padding: 10px 12px; }
+
+  .main { margin-left: 220px; padding: 36px 44px; max-width: 1100px; }
+  .main h1 { font-family: var(--fh); font-size: 1.9rem; margin-bottom: 4px; }
+  .main .sub { color: var(--muted); margin-bottom: 28px; font-size: 0.95rem; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* Stat cards */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--white); border-radius: var(--radius); padding: 20px; border: 1px solid var(--bg2); }
+  .stat-card .num { font-family: var(--fh); font-size: 2rem; color: var(--sage-d); }
+  .stat-card .label { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+
+  .panel { background: var(--white); border-radius: var(--radius); border: 1px solid var(--bg2); padding: 24px; margin-bottom: 24px; }
+  .panel h3 { font-family: var(--fh); font-size: 1.15rem; margin-bottom: 16px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--bg2); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .badge.pending { background: #fff3cd; color: #8a6600; }
+  .badge.confirmed { background: #d7f2e3; color: var(--sage-d); }
+  .badge.cancelled { background: #fde0dc; color: var(--gold-d); }
+
+  .btn { border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: var(--fb); }
+  .btn-sage { background: var(--sage); color: var(--white); }
+  .btn-sage:hover { background: var(--sage-d); }
+  .btn-danger { background: #fde0dc; color: var(--gold-d); }
+  .btn-danger:hover { background: var(--gold); color: var(--white); }
+  select.status-select { padding: 5px 8px; border-radius: 6px; border: 1px solid #ddd; font-family: var(--fb); font-size: 0.82rem; }
+
+  .add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+  .add-form input, .add-form textarea { padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-family: var(--fb); font-size: 0.88rem; }
+  .add-form textarea { grid-column: 1 / -1; resize: vertical; min-height: 60px; }
+  .add-form .full { grid-column: 1 / -1; }
+
+  .empty { color: var(--muted); font-size: 0.88rem; padding: 20px 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>🏔️ Admin</h1>
+    <p>ExploreNepal dashboard access</p>
+    <input type="password" id="passwordInput" placeholder="Admin password" onkeydown="if(event.key==='Enter') login()">
+    <button onclick="login()">Log in</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="sidebar">
+    <h2>ExploreNepal</h2>
+    <div class="tag">Admin Panel</div>
+    <button class="nav-btn active" onclick="showView('overview', this)">Overview</button>
+    <button class="nav-btn" onclick="showView('destinations', this)">Destinations</button>
+    <button class="nav-btn" onclick="showView('bookings', this)">Bookings</button>
+    <button class="logout" onclick="logout()">Log out</button>
+  </div>
+
+  <div class="main">
+    <!-- OVERVIEW -->
+    <div id="view-overview" class="view active">
+      <h1>Overview</h1>
+      <div class="sub">A snapshot of your site's content and activity.</div>
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card"><div class="num">—</div><div class="label">Destinations</div></div>
+        <div class="stat-card"><div class="num">—</div><div class="label">Hotels</div></div>
+        <div class="stat-card"><div class="num">—</div><div class="label">Restaurants</div></div>
+        <div class="stat-card"><div class="num">—</div><div class="label">Bookings</div></div>
+      </div>
+      <div class="panel">
+        <h3>Recent bookings</h3>
+        <table id="recentBookingsTable">
+          <thead><tr><th>Guest</th><th>Item</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Destinations by province</h3>
+        <table id="byProvinceTable">
+          <thead><tr><th>Province</th><th>Count</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DESTINATIONS -->
+    <div id="view-destinations" class="view">
+      <h1>Destinations</h1>
+      <div class="sub">Add, edit, or remove destinations shown on the site.</div>
+
+      <div class="panel">
+        <h3>Add a destination</h3>
+        <div class="add-form">
+          <input id="d-name" placeholder="Name (e.g. Pokhara)">
+          <input id="d-province" placeholder="Province">
+          <input id="d-category" placeholder="Category (e.g. lake, heritage)">
+          <input id="d-image" placeholder="Image URL">
+          <input id="d-bestSeason" placeholder="Best season">
+          <input id="d-entryFee" placeholder="Entry fee">
+          <input id="d-latitude" placeholder="Latitude" type="number" step="any">
+          <input id="d-longitude" placeholder="Longitude" type="number" step="any">
+          <textarea id="d-description" placeholder="Description"></textarea>
+        </div>
+        <button class="btn btn-sage" onclick="addDestination()">Add destination</button>
+      </div>
+
+      <div class="panel">
+        <h3>All destinations</h3>
+        <table id="destinationsTable">
+          <thead><tr><th>Name</th><th>Province</th><th>Category</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div id="view-bookings" class="view">
+      <h1>Bookings</h1>
+      <div class="sub">Review and update the status of hotel/restaurant bookings.</div>
+      <div class="panel">
+        <table id="bookingsTable">
+          <thead><tr><th>Guest</th><th>Email</th><th>Item</th><th>Date</th><th>Guests</th><th>Status</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ⚠️ Update this to your deployed backend URL
+  const API_BASE = 'https://explorenepal-backend.onrender.com/api';
+
+  function authHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'x-admin-password': sessionStorage.getItem('adminPass') || ''
+    };
+  }
+
+  async function login() {
+    const password = document.getElementById('passwordInput').value;
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = '';
+    try {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        sessionStorage.setItem('adminPass', password);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadOverview();
+        loadDestinations();
+        loadBookings();
+      } else {
+        errorEl.textContent = 'Wrong password. Try again.';
+      }
+    } catch (err) {
+      errorEl.textContent = 'Could not reach the server. Check your connection.';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('adminPass');
+    location.reload();
+  }
+
+  function showView(name, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + name).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ---------- Overview ----------
+  async function loadOverview() {
+    const res = await fetch(`${API_BASE}/admin/stats`, { headers: authHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const cards = document.querySelectorAll('#statGrid .stat-card .num');
+    cards[0].textContent = data.destinationCount;
+    cards[1].textContent = data.hotelCount;
+    cards[2].textContent = data.restaurantCount;
+    cards[3].textContent = data.bookingCount;
+
+    const recentBody = document.querySelector('#recentBookingsTable tbody');
+    recentBody.innerHTML = data.recentBookings.length
+      ? data.recentBookings.map(b => `
+        <tr>
+          <td>${b.userName || '—'}</td>
+          <td>${b.itemName || '—'}</td>
+          <td>${b.date || '—'}</td>
+          <td><span class="badge ${b.status || 'pending'}">${b.status || 'pending'}</span></td>
+        </tr>`).join('')
+      : `<tr><td colspan="4" class="empty">No bookings yet</td></tr>`;
+
+    const provinceBody = document.querySelector('#byProvinceTable tbody');
+    provinceBody.innerHTML = data.byProvince.length
+      ? data.byProvince.map(p => `<tr><td>${p._id || 'Unknown'}</td><td>${p.count}</td></tr>`).join('')
+      : `<tr><td colspan="2" class="empty">No destinations yet</td></tr>`;
+  }
+
+  // ---------- Destinations ----------
+  async function loadDestinations() {
+    const res = await fetch(`${API_BASE}/destinations`);
+    const data = await res.json();
+    const body = document.querySelector('#destinationsTable tbody');
+    body.innerHTML = data.length
+      ? data.map(d => `
+        <tr>
+          <td>${d.name || '—'}</td>
+          <td>${d.province || '—'}</td>
+          <td>${d.category || '—'}</td>
+          <td><button class="btn btn-danger" onclick="deleteDestination('${d._id}')">Delete</button></td>
+        </tr>`).join('')
+      : `<tr><td colspan="4" class="empty">No destinations yet</td></tr>`;
+  }
+
+  async function addDestination() {
+    const payload = {
+      name: document.getElementById('d-name').value,
+      province: document.getElementById('d-province').value,
+      category: document.getElementById('d-category').value,
+      image: document.getElementById('d-image').value,
+      bestSeason: document.getElementById('d-bestSeason').value,
+      entryFee: document.getElementById('d-entryFee').value,
+      latitude: parseFloat(document.getElementById('d-latitude').value) || undefined,
+      longitude: parseFloat(document.getElementById('d-longitude').value) || undefined,
+      description: document.getElementById('d-description').value
+    };
+    if (!payload.name) { alert('Name is required'); return; }
+
+    const res = await fetch(`${API_BASE}/destinations`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      document.querySelectorAll('.add-form input, .add-form textarea').forEach(el => el.value = '');
+      loadDestinations();
+      loadOverview();
+    } else {
+      alert('Could not add destination.');
+    }
+  }
+
+  async function deleteDestination(id) {
+    if (!confirm('Delete this destination?')) return;
+    await fetch(`${API_BASE}/destinations/${id}`, { method: 'DELETE', headers: authHeaders() });
+    loadDestinations();
+    loadOverview();
+  }
+
+  // ---------- Bookings ----------
+  async function loadBookings() {
+    const res = await fetch(`${API_BASE}/bookings`, { headers: authHeaders() });
+    if (!res.ok) return;
+    const data = await res.json();
+    const body = document.querySelector('#bookingsTable tbody');
+    body.innerHTML = data.length
+      ? data.map(b => `
+        <tr>
+          <td>${b.userName || '—'}</td>
+          <td>${b.email || '—'}</td>
+          <td>${b.itemName || '—'} <span style="color:var(--muted); font-size:0.78rem;">(${b.type || ''})</span></td>
+          <td>${b.date || '—'}</td>
+          <td>${b.guests ?? '—'}</td>
+          <td>
+            <select class="status-select" onchange="updateStatus('${b._id}', this.value)">
+              <option value="pending" ${b.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="confirmed" ${b.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="cancelled" ${b.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td><button class="btn btn-danger" onclick="deleteBooking('${b._id}')">Delete</button></td>
+        </tr>`).join('')
+      : `<tr><td colspan="7" class="empty">No bookings yet</td></tr>`;
+  }
+
+  async function updateStatus(id, status) {
+    await fetch(`${API_BASE}/bookings/${id}/status`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+      body: JSON.stringify({ status })
+    });
+    loadOverview();
+  }
+
+  async function deleteBooking(id) {
+    if (!confirm('Delete this booking?')) return;
+    await fetch(`${API_BASE}/bookings/${id}`, { method: 'DELETE', headers: authHeaders() });
+    loadBookings();
+    loadOverview();
+  }
+
+  // Auto-login if password already in session (e.g. page refresh)
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = sessionStorage.getItem('adminPass');
+    if (saved) {
+      document.getElementById('passwordInput').value = saved;
+      login();
+    }
+  });
+</script>
+</body>
+</html>
