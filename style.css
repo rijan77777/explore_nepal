@@ -714,3 +714,12 @@ a     { text-decoration: none; color: inherit; }
     display: none;
   }
 }
+.weather-widget {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg2); border-radius: var(--radius);
+  padding: 10px 16px; font-family: var(--fb); font-size: 0.9rem;
+  width: fit-content; margin: 12px 0;
+}
+.weather-widget img { width: 40px; height: 40px; }
+.weather-widget .w-temp { font-family: var(--fh); font-size: 1.3rem; color: var(--sage-d); }
+.weather-widget .w-desc { color: var(--muted); }

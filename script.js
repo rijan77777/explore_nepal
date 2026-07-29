@@ -446,6 +446,7 @@ function openDestDetail(id) {
           <span>🗓 <strong>Best Season:</strong> ${d.bestSeason}</span>
           <span>💰 <strong>Entry Fee:</strong> ${d.entryFee}</span>
         </div>
+        <div id="weather-${d.id}" class="weather-widget">Loading weather…</div>
         <div class="detail-acts">${d.activities.map(a => `<span class="act-pill">${a}</span>`).join('')}</div>
         <div class="share-row">
           <span class="share-label">Share:</span>
@@ -458,6 +459,29 @@ function openDestDetail(id) {
       </div>
     </div>`;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  loadWeather(d.latitude, d.longitude, `weather-${d.id}`);
+}
+
+/* ── Weather widget (OpenWeatherMap via backend) ── */
+async function loadWeather(lat, lon, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container || !lat || !lon) return;
+  container.innerHTML = 'Loading weather…';
+
+  try {
+    const res = await fetch(`${API}/weather?lat=${lat}&lon=${lon}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message);
+
+    container.innerHTML = `
+      <img src="https://openweathermap.org/img/wn/${data.icon}@2x.png" alt="${data.description}">
+      <div>
+        <div class="w-temp">${data.temp}°C</div>
+        <div class="w-desc">${cap(data.description)}</div>
+      </div>`;
+  } catch (err) {
+    container.innerHTML = '';
+  }
 }
 
 function shareDestination(id, platform) {
