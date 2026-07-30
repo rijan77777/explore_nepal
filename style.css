@@ -723,3 +723,102 @@ a     { text-decoration: none; color: inherit; }
 .weather-widget img { width: 40px; height: 40px; }
 .weather-widget .w-temp { font-family: var(--fh); font-size: 1.3rem; color: var(--sage-d); }
 .weather-widget .w-desc { color: var(--muted); }
+/* ============================================================
+   DARK / LIGHT MODE TOGGLE
+   Default is light (existing theme above is unaffected).
+   Adding class "dark-mode" to <body> overrides variables +
+   the handful of hardcoded #fff backgrounds below.
+   ============================================================ */
+.theme-toggle-btn {
+  background: none; border: 2px solid rgba(255,255,255,0.4); color: #fff;
+  border-radius: 50%; width: 38px; height: 38px; font-size: 1rem;
+  cursor: pointer; margin-right: 10px; transition: background 0.2s, transform 0.2s;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.theme-toggle-btn:hover { background: rgba(255,255,255,0.15); transform: rotate(15deg); }
+
+body.dark-mode {
+  --bg:     #14161f;
+  --bg2:    #1c1f2b;
+  --text:   #eceef2;
+  --muted:  #9a9ea8;
+  --white:  #1c1f2b;
+}
+
+/* Cards, panels, and modals that use a hardcoded white background
+   in the base stylesheet — overridden here so dark mode looks right. */
+body.dark-mode .card,
+body.dark-mode .detail-card,
+body.dark-mode .fbtn, body.dark-mode .hbtn, body.dark-mode .rbtn,
+body.dark-mode .planner-left,
+body.dark-mode .planner-right,
+body.dark-mode .af-item,
+body.dark-mode .dev-card,
+body.dark-mode .contact-form,
+body.dark-mode .ibox {
+  background: #1c1f2b;
+  color: var(--text);
+}
+
+body.dark-mode .fbtn, body.dark-mode .hbtn, body.dark-mode .rbtn {
+  border-color: #2c2f3d;
+}
+
+/* Modals / auth modal / compare box / QR box (the remaining literal #fff spots) */
+body.dark-mode .compare-modal,
+body.dark-mode .qr-modal,
+body.dark-mode .auth-modal,
+body.dark-mode #booking-modal > div {
+  background: #1c1f2b !important;
+  color: var(--text);
+}
+
+body.dark-mode #booking-title {
+  color: var(--text) !important;
+}
+
+/* Headings and labels use var(--dark) as text color throughout the site —
+   fine on light backgrounds, but invisible once those same containers turn
+   dark. Fix contrast for all of them here, without touching things that are
+   SUPPOSED to stay dark navy (navbar, footer, toast, auth button). */
+body.dark-mode .sec-head h2,
+body.dark-mode .detail-body h2,
+body.dark-mode .detail-meta span strong,
+body.dark-mode .review-section h4,
+body.dark-mode .review-item .ri-name,
+body.dark-mode .compare-modal-title,
+body.dark-mode .compare-col h3,
+body.dark-mode .fest-body h4,
+body.dark-mode .qr-modal-title,
+body.dark-mode .card-body h3,
+body.dark-mode .planner-left h3,
+body.dark-mode .about-text h3,
+body.dark-mode .af-item strong,
+body.dark-mode .dev-card h3,
+body.dark-mode .frow label,
+body.dark-mode .ibox strong,
+body.dark-mode .auth-logo,
+body.dark-mode .auth-title,
+body.dark-mode .auth-field label {
+  color: var(--text) !important;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background: #14161f;
+  color: var(--text);
+  border-color: #2c2f3d;
+}
+
+body.dark-mode .card-desc,
+body.dark-mode .card-meta,
+body.dark-mode p {
+  color: var(--muted);
+}
+
+/* Smooth transition when switching */
+body, .card, .detail-card, .fbtn, .hbtn, .rbtn,
+.planner-left, .planner-right, .af-item, .dev-card, .contact-form, .ibox {
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

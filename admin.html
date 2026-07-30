@@ -167,6 +167,7 @@
       <div class="panel">
         <h3>Add a destination</h3>
         <div class="add-form">
+          <input id="d-id" placeholder="Unique ID (e.g. sheyphoksundo, no spaces)">
           <input id="d-name" placeholder="Name (e.g. Pokhara)">
           <input id="d-province" placeholder="Province">
           <input id="d-category" placeholder="Category (e.g. lake, heritage)">
@@ -176,6 +177,7 @@
           <input id="d-latitude" placeholder="Latitude" type="number" step="any">
           <input id="d-longitude" placeholder="Longitude" type="number" step="any">
           <textarea id="d-description" placeholder="Description"></textarea>
+          <input id="d-activities" class="full" placeholder="Activities, comma separated (e.g. Trekking, Boating, Photography)">
         </div>
         <button class="btn btn-sage" onclick="addDestination()">Add destination</button>
       </div>
@@ -299,6 +301,7 @@
 
   async function addDestination() {
     const payload = {
+      id: document.getElementById('d-id').value.trim().toLowerCase().replace(/\s+/g, ''),
       name: document.getElementById('d-name').value,
       province: document.getElementById('d-province').value,
       category: document.getElementById('d-category').value,
@@ -307,9 +310,10 @@
       entryFee: document.getElementById('d-entryFee').value,
       latitude: parseFloat(document.getElementById('d-latitude').value) || undefined,
       longitude: parseFloat(document.getElementById('d-longitude').value) || undefined,
-      description: document.getElementById('d-description').value
+      description: document.getElementById('d-description').value,
+      activities: document.getElementById('d-activities').value.split(',').map(a => a.trim()).filter(Boolean)
     };
-    if (!payload.name) { alert('Name is required'); return; }
+    if (!payload.name || !payload.id) { alert('Name and ID are both required'); return; }
 
     const res = await fetch(`${API_BASE}/destinations`, {
       method: 'POST',

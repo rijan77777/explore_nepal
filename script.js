@@ -1,6 +1,27 @@
-
 const API = 'https://explorenepal-backend.onrender.com/api';
-
+ 
+/* ── DARK / LIGHT MODE TOGGLE ── */
+(function initTheme() {
+  const saved = localStorage.getItem('theme'); // 'dark' or 'light', defaults to light
+  if (saved === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+})();
+ 
+function toggleTheme() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+ 
+document.addEventListener('DOMContentLoaded', function () {
+  const isDark = document.body.classList.contains('dark-mode');
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+});
+ 
 /* Skeleton loading shimmer — shows placeholder cards immediately while
    initApp() fetches live data from the backend. Purely additive/cosmetic;
    buildDestCards/buildHotelCards/buildRestoCards safely overwrite these
@@ -25,7 +46,7 @@ function showSkeletonCards(gridId, count) {
 showSkeletonCards('dest-grid', 6);
 showSkeletonCards('hotel-grid', 6);
 showSkeletonCards('resto-grid', 6);
-
+ 
 async function loadAllData() {
   const [destData, hotelData, restoData] = await Promise.all([
     fetch(`${API}/destinations`).then(r => r.json()),
@@ -34,7 +55,7 @@ async function loadAllData() {
   ]);
   return { destinations: destData, hotels: hotelData, restaurants: restoData };
 }
-
+ 
 async function initApp() {
   try {
     const data = await loadAllData();
@@ -53,7 +74,7 @@ async function initApp() {
 }
 initApp();
 updateFavCount();
-
+ 
 // ── FIREBASE SETUP ──────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyDvkE_6AnySooCrywwNzh_OLVPkhjF7t2M",
@@ -70,11 +91,11 @@ console.log("Firebase connected!");
    script.js  –  ExploreNepal  (Final Defence Version)
    Reviews use localStorage — works perfectly offline/online
    ============================================================ */
-
+ 
 /* ── 1. NAVBAR ── */
 window.addEventListener('scroll', function () {
   document.getElementById('navbar').classList.toggle('solid', window.scrollY > 60);
-
+ 
   // Scroll progress bar — purely additive
   var bar = document.getElementById('scroll-progress');
   if (bar) {
@@ -82,7 +103,7 @@ window.addEventListener('scroll', function () {
     var pct = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
     bar.style.width = pct + '%';
   }
-
+ 
   // Floating parallax mountains — purely additive, only while hero is in view
   var heroSection = document.querySelector('.hero');
   if (heroSection && window.scrollY < window.innerHeight) {
@@ -90,7 +111,7 @@ window.addEventListener('scroll', function () {
     heroSection.style.setProperty('--parallax-y', parallaxOffset + 'px');
   }
 });
-
+ 
 /* Cursor spotlight in hero — purely additive, follows mouse via CSS variables */
 (function () {
   var heroEl = document.querySelector('.hero');
@@ -103,16 +124,16 @@ window.addEventListener('scroll', function () {
     heroEl.style.setProperty('--my', y + '%');
   });
 })();
-
+ 
 /* ── 2. HAMBURGER ── */
 document.getElementById('hamburger').addEventListener('click', function () {
   document.getElementById('mob-menu').classList.toggle('open');
 });
 function closeMob() { document.getElementById('mob-menu').classList.remove('open'); }
-
+ 
 /* ── HELPERS ── */
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
+ 
 function starsHTML(n) {
   n = Math.round(n * 2) / 2;
   let h = '';
@@ -123,28 +144,28 @@ function starsHTML(n) {
   }
   return '<span style="color:#e67e22;">' + h + '</span>';
 }
-
+ 
 function imgErr(el) {
   el.onerror = null;
   el.style.background = '#2d6a4f';
   el.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='520'%3E%3Crect width='800' height='520' fill='%232d6a4f'/%3E%3Ctext x='400' y='260' text-anchor='middle' dominant-baseline='middle' fill='rgba(255,255,255,0.4)' font-family='Arial' font-size='20'%3EImage loading...%3C/text%3E%3C/svg%3E";
 }
-
+ 
 /* ── 3. REVIEWS  (localStorage) ──
    Saves reviews in the browser so they persist between visits.
    localStorage is like a small notebook saved on the user's computer. */
-
+ 
 function getReviews(id) {
   try { return JSON.parse(localStorage.getItem('enr-' + id)) || []; }
   catch (e) { return []; }
 }
-
+ 
 function saveReview(id, name, rating, text) {
   // Save to localStorage (works offline)
   const list = getReviews(id);
   list.unshift({ name, rating, text, date: new Date().toLocaleDateString('en-GB') });
   localStorage.setItem('enr-' + id, JSON.stringify(list));
-
+ 
   // Save to Firebase (visible to everyone, stored in cloud)
   db.collection('reviews').add({
     destinationId: id,
@@ -159,16 +180,16 @@ function saveReview(id, name, rating, text) {
     console.warn('Firebase review error:', err);
   });
 }
-
+ 
 function getAvgRating(id) {
   const list = getReviews(id);
   if (!list.length) return 0;
   return Math.round((list.reduce((a, r) => a + r.rating, 0) / list.length) * 10) / 10;
 }
-
+ 
 /* ── COMPARE DESTINATIONS (in-memory, session-based) ── */
 let compareList = [];
-
+ 
 function toggleCompare(id, checkboxEl) {
   const idx = compareList.indexOf(id);
   if (idx > -1) {
@@ -183,7 +204,7 @@ function toggleCompare(id, checkboxEl) {
   }
   updateCompareBar();
 }
-
+ 
 function updateCompareBar() {
   let bar = document.getElementById('compare-bar');
   if (!bar) {
@@ -206,13 +227,13 @@ function updateCompareBar() {
     <button class="compare-bar-clear" onclick="clearCompare()">Clear</button>`;
   bar.classList.add('show');
 }
-
+ 
 function clearCompare() {
   compareList = [];
   updateCompareBar();
   document.querySelectorAll('.compare-check input').forEach(cb => cb.checked = false);
 }
-
+ 
 function showCompareModal() {
   if (compareList.length < 2) {
     showToast('Select at least 2 destinations to compare', 'error');
@@ -247,22 +268,22 @@ function showCompareModal() {
     </div>`;
   overlay.classList.add('open');
 }
-
+ 
 function closeCompareModal() {
   const overlay = document.getElementById('compare-overlay');
   if (overlay) overlay.classList.remove('open');
 }
-
+ 
 /* ── FAVORITES / WISHLIST (localStorage) ── */
 function getFavorites() {
   try { return JSON.parse(localStorage.getItem('enr-favorites')) || []; }
   catch (e) { return []; }
 }
-
+ 
 function isFavorite(id) {
   return getFavorites().includes(id);
 }
-
+ 
 function toggleFavorite(id, btnEl) {
   let favs = getFavorites();
   const wasFav = favs.includes(id);
@@ -281,7 +302,7 @@ function toggleFavorite(id, btnEl) {
     showToast('Added to favorites ♥', 'success');
   }
 }
-
+ 
 function updateFavCount() {
   const el = document.getElementById('fav-count');
   if (el) {
@@ -290,7 +311,7 @@ function updateFavCount() {
     el.style.display = n > 0 ? 'inline-flex' : 'none';
   }
 }
-
+ 
 function openFavorites() {
   const favs = getFavorites();
   const favDestinations = destinations.filter(d => favs.includes(d.id));
@@ -303,7 +324,7 @@ function openFavorites() {
   document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
   document.getElementById('destinations').scrollIntoView({ behavior: 'smooth' });
 }
-
+ 
 function reviewsHTML(id) {
   const list = getReviews(id);
   const items = list.length
@@ -317,7 +338,7 @@ function reviewsHTML(id) {
           <p>${r.text}</p>
         </div>`).join('')
     : '<p class="no-reviews">No reviews yet. Be the first to review!</p>';
-
+ 
   return `
     <div class="review-section">
       <h4>⭐ Reviews &amp; Ratings</h4>
@@ -336,7 +357,7 @@ function reviewsHTML(id) {
       <div class="reviews-list">${items}</div>
     </div>`;
 }
-
+ 
 let pickedStars = {};
 function pickStar(id, n) {
   pickedStars[id] = n;
@@ -344,7 +365,7 @@ function pickStar(id, n) {
     s.classList.toggle('on', i < n);
   });
 }
-
+ 
 function submitReview(id) {
   const name   = (document.getElementById('rname-' + id).value || '').trim();
   const rating = pickedStars[id] || 0;
@@ -352,10 +373,10 @@ function submitReview(id) {
   if (!name)   { alert('Please enter your name.');       return; }
   if (!rating) { alert('Please select a star rating.'); return; }
   if (!text)   { alert('Please write a review.');        return; }
-
+ 
   saveReview(id, name, rating, text);
   celebrateSuccess('Review submitted — thank you!');
-
+ 
   /* Refresh the reviews list immediately */
   const list = getReviews(id);
   document.querySelector('#spick-' + id).closest('.review-section')
@@ -368,14 +389,14 @@ function submitReview(id) {
         </div>
         <p>${r.text}</p>
       </div>`).join('');
-
+ 
   document.getElementById('rname-' + id).value = '';
   document.getElementById('rtxt-'  + id).value = '';
   pickedStars[id] = 0;
   document.querySelectorAll('#spick-' + id + ' span').forEach(s => s.classList.remove('on'));
   alert('✅ Thank you for your review!');
 }
-
+ 
 /* ── 4. DESTINATION CARDS ── */
 function buildDestCards(list) {
   const grid = document.getElementById('dest-grid');
@@ -416,7 +437,7 @@ function buildDestCards(list) {
   // Wikipedia auto-photo-swap disabled — was overwriting correct curated photos with mismatched ones.
   // setTimeout(upgradeWikiImages, 600);
 }
-
+ 
 /* ── 5. DESTINATION FILTERS ── */
 document.querySelectorAll('.fbtn').forEach(function (btn) {
   btn.addEventListener('click', function () {
@@ -427,7 +448,7 @@ document.querySelectorAll('.fbtn').forEach(function (btn) {
     buildDestCards(f === 'all' ? destinations : destinations.filter(d => d.category === f));
   });
 });
-
+ 
 /* ── 6. DESTINATION DETAIL PANEL ── */
 function openDestDetail(id) {
   const d = destinations.find(x => x.id === id);
@@ -461,18 +482,18 @@ function openDestDetail(id) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   loadWeather(d.latitude, d.longitude, `weather-${d.id}`);
 }
-
+ 
 /* ── Weather widget (OpenWeatherMap via backend) ── */
 async function loadWeather(lat, lon, containerId) {
   const container = document.getElementById(containerId);
   if (!container || !lat || !lon) return;
   container.innerHTML = 'Loading weather…';
-
+ 
   try {
     const res = await fetch(`${API}/weather?lat=${lat}&lon=${lon}`);
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
-
+ 
     container.innerHTML = `
       <img src="https://openweathermap.org/img/wn/${data.icon}@2x.png" alt="${data.description}">
       <div>
@@ -483,13 +504,13 @@ async function loadWeather(lat, lon, containerId) {
     container.innerHTML = '';
   }
 }
-
+ 
 function shareDestination(id, platform) {
   const d = destinations.find(x => x.id === id);
   if (!d) return;
   const shareText = `Check out ${d.name} on ExploreNepal! ${d.description.slice(0, 100)}...`;
   const shareUrl = window.location.origin + window.location.pathname + '#' + id;
-
+ 
   if (platform === 'whatsapp') {
     window.open('https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
   } else if (platform === 'facebook') {
@@ -502,12 +523,12 @@ function shareDestination(id, platform) {
     });
   }
 }
-
+ 
 function closeDetail(pid) {
   const p = document.getElementById(pid);
   if (p) p.innerHTML = '';
 }
-
+ 
 /* ── 7. HOTEL CARDS ── */
 function buildHotelCards(list) {
   const grid = document.getElementById('hotel-grid');
@@ -535,7 +556,7 @@ function buildHotelCards(list) {
   });
   revealCards();
 }
-
+ 
 document.querySelectorAll('.hbtn').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.hbtn').forEach(b => b.classList.remove('active'));
@@ -545,7 +566,7 @@ document.querySelectorAll('.hbtn').forEach(function (btn) {
     buildHotelCards(f === 'all' ? hotels : hotels.filter(h => h.type === f));
   });
 });
-
+ 
 function openHotelDetail(id) {
   const h = hotels.find(x => x.id === id);
   if (!h) return;
@@ -570,7 +591,7 @@ function openHotelDetail(id) {
     </div>`;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
+ 
 /* ── 8. RESTAURANT CARDS ── */
 function buildRestoCards(list) {
   const grid = document.getElementById('resto-grid');
@@ -598,7 +619,7 @@ function buildRestoCards(list) {
   });
   revealCards();
 }
-
+ 
 document.querySelectorAll('.rbtn').forEach(function (btn) {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.rbtn').forEach(b => b.classList.remove('active'));
@@ -608,7 +629,7 @@ document.querySelectorAll('.rbtn').forEach(function (btn) {
     buildRestoCards(f === 'all' ? restaurants : restaurants.filter(r => r.priceRange === f));
   });
 });
-
+ 
 function openRestoDetail(id) {
   const r = restaurants.find(x => x.id === id);
   if (!r) return;
@@ -633,14 +654,14 @@ function openRestoDetail(id) {
     </div>`;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
+ 
 /* ── 9. SEARCH ── */
 function liveSearch(q) {
   q = (q || '').trim().toLowerCase();
   closeDetail('detail-panel');
   const grid = document.getElementById('search-grid');
   if (!q) { grid.innerHTML = ''; return; }
-
+ 
   const results = destinations.filter(d =>
     d.name.toLowerCase().includes(q) ||
     d.province.toLowerCase().includes(q) ||
@@ -648,7 +669,7 @@ function liveSearch(q) {
     d.description.toLowerCase().includes(q) ||
     d.activities.some(a => a.toLowerCase().includes(q))
   );
-
+ 
   grid.innerHTML = '';
   if (!results.length) {
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#888;padding:30px;">No results for "' + q + '". Try a different keyword.</p>';
@@ -674,7 +695,7 @@ function liveSearch(q) {
   // Wikipedia auto-photo-swap disabled — was overwriting correct curated photos with mismatched ones.
   // setTimeout(upgradeWikiImages, 400);
 }
-
+ 
 function openSearchDetail(id) {
   const d = destinations.find(x => x.id === id);
   if (!d) return;
@@ -699,7 +720,7 @@ function openSearchDetail(id) {
     </div>`;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
+ 
 function heroSearch() {
   const q = document.getElementById('hero-q').value;
   document.getElementById('main-q').value = q;
@@ -707,13 +728,13 @@ function heroSearch() {
 }
 document.getElementById('hero-q').addEventListener('keydown', function (e) { if (e.key === 'Enter') heroSearch(); });
 document.getElementById('main-q').addEventListener('keydown', function (e) { if (e.key === 'Enter') liveSearch(this.value); });
-
+ 
 /* ── 10. MAP ── */
 const map = L.map('the-map').setView([28.3, 84.1], 7);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors', maxZoom: 18
 }).addTo(map);
-
+ 
 function dot(color) {
   return L.divIcon({
     html: `<div style="width:13px;height:13px;background:${color};border-radius:50%;border:3px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,0.4);"></div>`,
@@ -726,10 +747,10 @@ destinations.forEach(function (d) {
     .addTo(map)
     .bindPopup(`<strong>${d.name}</strong><br><em style="color:#666;font-size:0.85rem;">${cap(d.category)} · ${d.province}</em><br><span style="font-size:0.82rem;">${d.bestSeason}</span>`);
 });
-
+ 
 /* ── 11. TRIP PLANNER ── */
 let itinerary = {};
-
+ 
 function addToPlanner() {
   const id  = document.getElementById('pick-dest').value;
   const day = parseInt(document.getElementById('pick-day').value, 10);
@@ -741,18 +762,18 @@ function addToPlanner() {
   itinerary[day].push(dest.name);
   renderPlanner();
 }
-
+ 
 function removeItem(day, idx) {
   itinerary[day].splice(idx, 1);
   if (!itinerary[day].length) delete itinerary[day];
   renderPlanner();
 }
-
+ 
 function clearPlanner() {
   if (!Object.keys(itinerary).length) return;
   if (confirm('Clear your full itinerary?')) { itinerary = {}; renderPlanner(); }
 }
-
+ 
 function renderPlanner() {
   const board = document.getElementById('planner-board');
   if (!Object.keys(itinerary).length) {
@@ -768,7 +789,7 @@ function renderPlanner() {
   });
   board.innerHTML = html;
 }
-
+ 
 /* ── DOWNLOAD ITINERARY AS PDF ── */
 function downloadItineraryPDF() {
   if (!Object.keys(itinerary).length) {
@@ -783,7 +804,7 @@ function downloadItineraryPDF() {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   let y = 24;
-
+ 
   // Header
   doc.setFillColor(20, 22, 31);
   doc.rect(0, 0, pageWidth, 34, 'F');
@@ -796,10 +817,10 @@ function downloadItineraryPDF() {
   doc.setFont('helvetica', 'normal');
   doc.text('Your Nepal Trip Itinerary', 16, 29);
   y = 46;
-
+ 
   doc.setTextColor(35, 37, 43);
   const days = Object.keys(itinerary).map(Number).sort((a, b) => a - b);
-
+ 
   days.forEach(function (day) {
     if (y > 265) { doc.addPage(); y = 20; }
     doc.setFillColor(45, 157, 111);
@@ -809,7 +830,7 @@ function downloadItineraryPDF() {
     doc.setFont('helvetica', 'bold');
     doc.text('Day ' + day, 18, y + 1);
     y += 12;
-
+ 
     doc.setTextColor(35, 37, 43);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
@@ -820,7 +841,7 @@ function downloadItineraryPDF() {
     });
     y += 4;
   });
-
+ 
   y += 6;
   if (y > 275) { doc.addPage(); y = 20; }
   doc.setDrawColor(230, 224, 214);
@@ -829,11 +850,11 @@ function downloadItineraryPDF() {
   doc.setFontSize(9);
   doc.setTextColor(107, 111, 118);
   doc.text('Generated by ExploreNepal — explorenepal.com', 14, y);
-
+ 
   doc.save('ExploreNepal-Itinerary.pdf');
   celebrateSuccess('Itinerary downloaded!');
 }
-
+ 
 /* ── QR CODE FOR ITINERARY ── */
 function showItineraryQR() {
   if (!Object.keys(itinerary).length) {
@@ -846,7 +867,7 @@ function showItineraryQR() {
     summary += 'Day ' + day + ': ' + itinerary[day].join(', ') + '\n';
   });
   const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent(summary);
-
+ 
   let overlay = document.getElementById('qr-overlay');
   if (!overlay) {
     overlay = document.createElement('div');
@@ -864,7 +885,7 @@ function showItineraryQR() {
     </div>`;
   overlay.classList.add('open');
 }
-
+ 
 /* ── 12. CONTACT FORM ── */
 function submitForm() {
   const name  = document.getElementById('c-name').value.trim();
@@ -879,14 +900,14 @@ function submitForm() {
   document.getElementById('c-msg').value   = '';
   setTimeout(function () { ok.style.display = 'none'; }, 5000);
 }
-
+ 
 /* ── 13. DROPDOWNS ── */
 const pickSel = document.getElementById('pick-dest');
 destinations.forEach(function (d) {
   const o = document.createElement('option');
   o.value = d.id; o.textContent = d.name; pickSel.appendChild(o);
 });
-
+ 
 /* ── 14. WIKIPEDIA IMAGE UPGRADE ──
    Calls Wikipedia's free API to get the latest real photo
    for each destination and swaps it into the card. */
@@ -906,7 +927,7 @@ const wikiMap = {
   muktinath:'Muktinath', manaslu:'Manaslu',
   tilicho:'Tilicho_Lake', hadiya:'Udayapur_District'
 };
-
+ 
 function upgradeWikiImages() {
   const ids = Object.keys(wikiMap);
   for (let i = 0; i < ids.length; i += 10) {
@@ -932,7 +953,7 @@ function upgradeWikiImages() {
 }
 // Wikipedia auto-photo-swap disabled — was overwriting correct curated photos with mismatched ones.
 // setTimeout(upgradeWikiImages, 800);
-
+ 
 /* ── 15. SCROLL REVEAL ── */
 function revealCards() {
   const obs = new IntersectionObserver(function (entries) {
@@ -952,10 +973,10 @@ function revealCards() {
   });
 }
 setTimeout(revealCards, 200);
-
+ 
 /* ── 16. AUTH SYSTEM (localStorage) ─────────────────────── */
 /* Users are stored as: { name, email, password } in localStorage */
-
+ 
 function getUsers() {
   try { return JSON.parse(localStorage.getItem('en-users')) || []; }
   catch(e) { return []; }
@@ -970,7 +991,7 @@ function getSession() {
 function saveSession(user) {
   localStorage.setItem('en-session', user ? JSON.stringify(user) : 'null');
 }
-
+ 
 /* Show toast notification */
 function showToast(msg, type) {
   let t = document.getElementById('auth-toast-el');
@@ -989,12 +1010,12 @@ function showToast(msg, type) {
     t.classList.remove('show');
   }, 3000);
 }
-
+ 
 /* Success celebration: animated checkmark + confetti burst.
    Purely visual, self-contained — safe to call from anywhere. */
 function celebrateSuccess(msg) {
   showToast(msg, 'success');
-
+ 
   // Checkmark badge
   var badge = document.createElement('div');
   badge.className = 'success-badge';
@@ -1003,7 +1024,7 @@ function celebrateSuccess(msg) {
   requestAnimationFrame(function() {
     requestAnimationFrame(function() { badge.classList.add('show'); });
   });
-
+ 
   // Confetti burst
   var colors = ['#ff4d3d', '#2d9d6f', '#ffd166', '#4f7a5c', '#fff'];
   var confettiWrap = document.createElement('div');
@@ -1019,7 +1040,7 @@ function celebrateSuccess(msg) {
     confettiWrap.appendChild(piece);
   }
   document.body.appendChild(confettiWrap);
-
+ 
   setTimeout(function() {
     badge.classList.remove('show');
     setTimeout(function() {
@@ -1028,7 +1049,7 @@ function celebrateSuccess(msg) {
     }, 400);
   }, 1600);
 }
-
+ 
 /* Open/close modal */
 function openAuthModal(panel) {
   document.getElementById('auth-overlay').classList.add('open');
@@ -1042,30 +1063,30 @@ function openAuthModal(panel) {
   }
   clearAuthErrors();
 }
-
+ 
 function closeAuthModal() {
   document.getElementById('auth-overlay').classList.remove('open');
   document.getElementById('auth-modal').classList.remove('open');
   clearAuthErrors();
 }
-
+ 
 function clearAuthErrors() {
   var le = document.getElementById('login-err');
   var re = document.getElementById('reg-err');
   if (le) le.textContent = '';
   if (re) re.textContent = '';
 }
-
+ 
 function switchToRegister() { openAuthModal('register'); return false; }
 function switchToLogin()    { openAuthModal('login');    return false; }
-
+ 
 /* Login — checks Firebase first, falls back to localStorage */
 function doLogin() {
   var email  = (document.getElementById('login-email').value || '').trim().toLowerCase();
   var pass   = (document.getElementById('login-pass').value  || '');
   var errEl  = document.getElementById('login-err');
   if (!email || !pass) { errEl.textContent = 'Please fill in all fields.'; return; }
-
+ 
   // Try Firebase first
   db.collection('users').doc(email).get()
     .then(function(doc) {
@@ -1104,7 +1125,7 @@ function doLogin() {
       showToast('✅ Welcome back, ' + user.name + '!', 'success');
     });
 }
-
+ 
 /* Register — saves to Firebase AND localStorage */
 function doRegister() {
   var name   = (document.getElementById('reg-name').value  || '').trim();
@@ -1115,7 +1136,7 @@ function doRegister() {
   if (!name || !email || !pass || !pass2) { errEl.textContent = 'Please fill in all fields.'; return; }
   if (pass.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
   if (pass !== pass2)  { errEl.textContent = 'Passwords do not match.'; return; }
-
+ 
   // Check if email already exists in Firebase
   db.collection('users').doc(email).get()
     .then(function(doc) {
@@ -1123,11 +1144,11 @@ function doRegister() {
         errEl.textContent = 'An account with this email already exists.';
         return;
       }
-
+ 
       // Save to Firebase cloud database
       var newUser = { name: name, email: email, password: pass,
                       createdAt: new Date().toISOString() };
-
+ 
       db.collection('users').doc(email).set(newUser)
         .then(function() {
           console.log('User saved to Firebase!');
@@ -1135,12 +1156,12 @@ function doRegister() {
         .catch(function(err) {
           console.warn('Firebase save error:', err);
         });
-
+ 
       // Also save to localStorage as backup (works offline)
       var users = getUsers();
       users.push({ name: name, email: email, password: pass });
       saveUsers(users);
-
+ 
       // Log in immediately
       saveSession({ name: name, email: email });
       closeAuthModal();
@@ -1163,44 +1184,46 @@ function doRegister() {
       showToast('🎉 Account created! Welcome, ' + name + '!', 'success');
     });
 }
-
+ 
 /* Logout */
 function doLogout() {
   saveSession(null);
   renderNavAuth();
   showToast('👋 You have been signed out.', '');
 }
-
+ 
 /* Render the nav auth area based on session */
 function renderNavAuth() {
   var navAuth = document.getElementById('nav-auth');
   if (!navAuth) return;
+  var themeBtn = '<button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">' +
+    (document.body.classList.contains('dark-mode') ? '☀️' : '🌙') + '</button>';
   var session = getSession();
   if (session) {
     var initials = session.name.split(' ').map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
-    navAuth.innerHTML =
+    navAuth.innerHTML = themeBtn +
       '<div class="nav-user-btn" title="' + session.email + '">' +
         '<div class="nav-user-avatar">' + initials + '</div>' +
         '<span>' + session.name.split(' ')[0] + '</span>' +
       '</div>' +
       '<button class="nav-logout-btn" onclick="doLogout()">Sign Out</button>';
   } else {
-    navAuth.innerHTML = '<button class="nav-login-btn" onclick="openAuthModal(\'login\')">🔐 Login</button>';
+    navAuth.innerHTML = themeBtn + '<button class="nav-login-btn" onclick="openAuthModal(\'login\')">🔐 Login</button>';
   }
 }
-
+ 
 /* Close modal on Escape key */
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeAuthModal();
 });
-
+ 
 /* Init auth on page load */
 renderNavAuth();
-
+ 
 /* ── 17. GALLERY — Wikipedia API thumbnails (same API as destination cards) ── */
 // Uses en.wikipedia.org/w/api.php — free, CORS-enabled, returns real Nepal photos
 // Same proven approach as the existing upgradeWikiImages() function in this project
-
+ 
 const galleryItems = [
   // Mountains
   { cat:'mountain', wiki:'Mount_Everest',           cap:'Mount Everest (8,849m)' },
@@ -1218,7 +1241,7 @@ const galleryItems = [
   { cat:'mountain', wiki:'Kala_Patthar',            cap:'Everest from Kala Patthar (5,545m)' },
   { cat:'mountain', wiki:'Annapurna_Circuit',       cap:'Annapurna Circuit Trek' },
   { cat:'mountain', wiki:'Everest_Base_Camp_trek',  cap:'Everest Base Camp Trail' },
-
+ 
   // Heritage
   { cat:'heritage', wiki:'Boudhanath',              cap:'Boudhanath Stupa — UNESCO World Heritage' },
   { cat:'heritage', wiki:'Bhaktapur_Durbar_Square', cap:'Bhaktapur Durbar Square' },
@@ -1235,7 +1258,7 @@ const galleryItems = [
   { cat:'heritage', wiki:'Bandipur,_Nepal',         cap:'Bandipur — Medieval Newari Town' },
   { cat:'heritage', wiki:'Tansen,_Nepal',           cap:'Tansen Old Bazaar, Palpa' },
   { cat:'heritage', wiki:'Upper_Mustang',           cap:'Upper Mustang — The Last Forbidden Kingdom' },
-
+ 
   // Lakes
   { cat:'lake', wiki:'Phewa_Lake',         cap:'Phewa Lake, Pokhara' },
   { cat:'lake', wiki:'Rara_Lake',          cap:'Rara Lake — Nepal\'s Largest Lake' },
@@ -1244,7 +1267,7 @@ const galleryItems = [
   { cat:'lake', wiki:'Gosainkunda',        cap:'Gosainkunda Sacred Lake (4,380m)' },
   { cat:'lake', wiki:'Shey_Phoksundo_Lake',cap:'Shey Phoksundo Lake, Dolpo' },
   { cat:'lake', wiki:'Begnas_Lake',        cap:'Begnas Lake, Pokhara' },
-
+ 
   // Nature
   { cat:'nature', wiki:'Chitwan_National_Park',     cap:'Chitwan National Park' },
   { cat:'nature', wiki:'Indian_rhinoceros',         cap:'One-Horned Rhino, Chitwan' },
@@ -1255,7 +1278,7 @@ const galleryItems = [
   { cat:'nature', wiki:'Bardia_National_Park',      cap:'Bardia National Park, Western Nepal' },
   { cat:'nature', wiki:'Sarangkot',                 cap:'Paragliding from Sarangkot, Pokhara' },
   { cat:'nature', wiki:'Nagarkot',                  cap:'Himalayan View from Nagarkot' },
-
+ 
   // Culture
   { cat:'culture', wiki:'Indra_Jatra',              cap:'Indra Jatra Festival, Kathmandu' },
   { cat:'culture', wiki:'Kumari_(goddess)',          cap:'Living Goddess Kumari, Kathmandu' },
@@ -1268,28 +1291,28 @@ const galleryItems = [
   { cat:'culture', wiki:'Mithila_art',              cap:'Mithila Folk Art, Janakpur', img:'https://images.unsplash.com/photo-1719498481882-0ee699635b4e?w=700&q=80' },
   { cat:'culture', wiki:'Sherpa_people',            cap:'Sherpa People, Khumbu Valley' },
 ];
-
+ 
 var currentGalFilter = 'all';
 var extraLoaded = false;
 var lbItems = [];
 var lbIndex = 0;
 var INITIAL_COUNT = 35;
-
+ 
 /* ── Build empty grid first, then fetch images in batches ── */
 function buildGallery(items, append) {
   var grid = document.getElementById('gallery-grid');
   if (!append) grid.innerHTML = '';
-
+ 
   items.forEach(function(item, idx) {
     var div = document.createElement('div');
     div.className = 'gal-item gal-loading';
     div.setAttribute('data-cat', item.cat);
     div.setAttribute('data-wiki', item.wiki);
     div.onclick = function() { openLightbox(div); };
-
+ 
     var img = document.createElement('img');
     img.alt = item.cap;
-
+ 
     if (item.img) {
       // Verified direct photo — bypass Wikipedia lookup entirely for this item.
       img.src = item.img;
@@ -1298,20 +1321,20 @@ function buildGallery(items, append) {
       // placeholder shimmer while loading via Wikipedia
       img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
     }
-
+ 
     var span = document.createElement('span');
     span.textContent = item.cap;
-
+ 
     div.appendChild(img);
     div.appendChild(span);
     grid.appendChild(div);
   });
-
+ 
   applyGalleryFilter(currentGalFilter);
   var needsFetch = items.filter(function(it) { return !it.img; });
   fetchWikiImages(needsFetch, append ? galleryItems.indexOf(items[0]) : 0);
 }
-
+ 
 /* ── Fetch real Wikipedia thumbnails in batches of 10 ── */
 function fetchWikiImages(items, startIdx) {
   var BATCH = 10;
@@ -1333,7 +1356,7 @@ function fetchWikiImages(items, startIdx) {
     var pool = fallbacksByCat[cat] || fallbacksByCat.heritage;
     return pool[Math.floor(Math.random() * pool.length)];
   }
-
+ 
   function applyImage(cell, imgSrc, cat) {
     var img = cell.querySelector('img');
     if (!img) return;
@@ -1344,23 +1367,23 @@ function fetchWikiImages(items, startIdx) {
       img.onload = function() { img.classList.add('loaded'); cell.classList.remove('gal-loading'); };
     };
   }
-
+ 
   for (var i = 0; i < items.length; i += BATCH) {
     (function(batch, offset) {
       var titles = batch.map(function(it) { return encodeURIComponent(it.wiki); }).join('|');
       var url = 'https://en.wikipedia.org/w/api.php?action=query&prop=pageimages'
               + '&piprop=thumbnail&pithumbsize=700&pilimit=50&redirects=1'
               + '&format=json&origin=*&titles=' + titles;
-
+ 
       // Map data-wiki value -> category, so fallbacks can be matched correctly.
       var catByWiki = {};
       batch.forEach(function(it) { catByWiki[it.wiki] = it.cat; });
-
+ 
       fetch(url)
         .then(function(r) { return r.json(); })
         .then(function(data) {
           if (!data.query) throw new Error('no query in response');
-
+ 
           // Map the *final* (post-redirect/normalized) title back to the
           // *originally requested* title, so we can match against data-wiki.
           var finalToOriginal = {};
@@ -1372,14 +1395,14 @@ function fetchWikiImages(items, startIdx) {
             var origFrom = finalToOriginal[r.from.replace(/ /g, '_').toLowerCase()] || r.from;
             finalToOriginal[r.to.replace(/ /g, '_').toLowerCase()] = origFrom;
           });
-
+ 
           var handledWikis = {};
-
+ 
           Object.values(data.query.pages).forEach(function(page) {
             var finalKey = page.title.replace(/ /g, '_').toLowerCase();
             var originalWiki = finalToOriginal[finalKey] || page.title;
             if (!page.thumbnail) return; // no image on this Wikipedia page — leave unhandled so the fallback pass below catches it
-
+ 
             handledWikis[originalWiki.replace(/ /g, '_').toLowerCase()] = true;
             var imgSrc = page.thumbnail.source;
             var cat = catByWiki[originalWiki] || 'heritage';
@@ -1391,7 +1414,7 @@ function fetchWikiImages(items, startIdx) {
               }
             });
           });
-
+ 
           // Any requested title that genuinely has no Wikipedia photo (rare
           // village/topic pages) — don't leave it stuck on the shimmer forever.
           batch.forEach(function(it) {
@@ -1417,7 +1440,7 @@ function fetchWikiImages(items, startIdx) {
     })(items.slice(i, i + BATCH), i);
   }
 }
-
+ 
 /* ── Load More ── */
 function loadMoreGallery() {
   if (extraLoaded) return;
@@ -1425,7 +1448,7 @@ function loadMoreGallery() {
   buildGallery(galleryItems.slice(INITIAL_COUNT), true);
   document.getElementById('gal-load-more').style.display = 'none';
 }
-
+ 
 /* ── Filter ── */
 function applyGalleryFilter(cat) {
   currentGalFilter = cat;
@@ -1440,7 +1463,7 @@ document.querySelectorAll('.gfbtn').forEach(function(btn) {
     applyGalleryFilter(btn.getAttribute('data-gf'));
   });
 });
-
+ 
 /* ── Lightbox ── */
 function openLightbox(el) {
   lbItems = Array.from(document.querySelectorAll('.gal-item:not(.hidden)'));
@@ -1473,7 +1496,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowLeft')  lbNav(-1);
   if (e.key === 'Escape') closeLightbox();
 });
-
+ 
 /* ── INIT ── */
 buildGallery(galleryItems.slice(0, INITIAL_COUNT));
 // ── BOOKING SYSTEM ──
@@ -1485,11 +1508,11 @@ function openBooking(id, name, type) {
   document.getElementById('booking-type').value = type;
   modal.style.display = 'flex';
 }
-
+ 
 function closeBooking() {
   document.getElementById('booking-modal').style.display = 'none';
 }
-
+ 
 async function submitBooking() {
   const booking = {
     type:     document.getElementById('booking-type').value,
@@ -1501,12 +1524,12 @@ async function submitBooking() {
     guests:   document.getElementById('booking-guests').value,
     message:  document.getElementById('booking-message').value,
   };
-
+ 
   if (!booking.userName || !booking.email || !booking.date) {
     alert('Please fill in all required fields!');
     return;
   }
-
+ 
   try {
     const res = await fetch(`${API}/bookings`, {
       method: 'POST',
