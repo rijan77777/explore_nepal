@@ -113,18 +113,6 @@ window.addEventListener('scroll', function () {
   }
 });
 
-/* Cursor spotlight in hero — purely additive, follows mouse via CSS variables */
-(function () {
-  var heroEl = document.querySelector('.hero');
-  if (!heroEl) return;
-  heroEl.addEventListener('mousemove', function (e) {
-    var rect = heroEl.getBoundingClientRect();
-    var x = ((e.clientX - rect.left) / rect.width) * 100;
-    var y = ((e.clientY - rect.top) / rect.height) * 100;
-    heroEl.style.setProperty('--mx', x + '%');
-    heroEl.style.setProperty('--my', y + '%');
-  });
-})();
 
 /* ── 2. HAMBURGER ── */
 document.getElementById('hamburger').addEventListener('click', function () {

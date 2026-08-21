@@ -1,13 +1,10 @@
-/* ============================================================
-   style.css  –  ExploreNepal  (Premium Redesign)
-   All class/ID names preserved for JS compatibility.
-   ============================================================ */
+
 :root {
-  --sage:     #2d9d6f;   /* brighter, more energetic green */
+  --sage:     #2d9d6f;   
   --sage-d:   #22794f;
   --dark:     #14161f;
   --dark-2:   #1c1f2b;
-  --gold:     #ff4d3d;   /* bold vivid coral-red accent, replaces muted terracotta */
+  --gold:     #ff4d3d;   
   --gold-d:   #e0311f;
   --bg:       #faf7f2;
   --bg2:      #f1ece3;
@@ -89,12 +86,6 @@ a     { text-decoration: none; color: inherit; }
   transform: translateY(var(--parallax-y, 0px));
   will-change: transform;
 }
-.hero-overlay {
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: radial-gradient(circle 300px at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.30), transparent 70%);
-  opacity: 0; transition: opacity 0.4s ease;
-}
-.hero:hover .hero-overlay { opacity: 1; }
 .hero-content { position: relative; z-index: 1; max-width: 780px; padding: 0 24px; animation: fadeUp 0.9s var(--ease) both; }
 @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
 .hero-tag { display: inline-block; font-size: 0.78rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 14px; }
