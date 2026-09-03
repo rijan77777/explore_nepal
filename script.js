@@ -1532,3 +1532,81 @@ async function submitBooking() {
     alert('❌ Booking failed. Please try again.');
   }
 }
+// ============================================
+// DONATION MODAL - PM RELIEF FUND
+// ============================================
+
+function openDonationModal() {
+  const modal = document.getElementById('donationModal');
+  if (modal) {
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeDonationModal() {
+  const modal = document.getElementById('donationModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+function copyText(text) {
+  // Copy to clipboard
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      showCopySuccess(event.target);
+    }).catch(function() {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-9999px';
+  textArea.style.top = '-9999px';
+  document.body.appendChild(textArea);
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    showCopySuccess(document.querySelector('.donation-modal .copy-btn:last-child') || event?.target);
+  } catch (err) {
+    alert('Account number: ' + text);
+  }
+  document.body.removeChild(textArea);
+}
+
+function showCopySuccess(btn) {
+  if (!btn) return;
+  const originalText = btn.textContent;
+  const originalBg = btn.style.background;
+  btn.textContent = '✅ Copied!';
+  btn.style.background = '#d4edda';
+  btn.style.color = '#155724';
+  setTimeout(function() {
+    btn.textContent = originalText;
+    btn.style.background = originalBg || '#e8f5e9';
+    btn.style.color = '#2e7d32';
+  }, 2000);
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+  const modal = document.getElementById('donationModal');
+  if (modal && event.target === modal) {
+    closeDonationModal();
+  }
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeDonationModal();
+  }
+});
